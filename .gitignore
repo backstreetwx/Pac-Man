@@ -70,3 +70,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# RAIN AI
+Assets/AI/Cache/
+Assets/AI/Cache.meta
+Assets/RAIN/Editor/RAINProjectState.*
