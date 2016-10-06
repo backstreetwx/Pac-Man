@@ -10,6 +10,7 @@ using RAIN.Navigation;
 [RAINAction("Choose Free Position")]
 public class ChooseFreePosition : RAINAction
 {
+
   public Expression MoveDistance = new Expression();
 
   public Expression StayOnGraph = new Expression();
@@ -20,6 +21,7 @@ public class ChooseFreePosition : RAINAction
 
   public override ActionResult Execute(RAIN.Core.AI ai)
   {
+    if (!MoveTargetVariable.IsVariable)
       throw new Exception("The Choose Move Position node requires a valid Move Target Variable");
 
     float tMoveDistance = 0f;
