@@ -17,31 +17,35 @@ public class ChooseFreePosition : RAINAction
 
   public Expression MoveTargetVariable = new Expression();
 
-  private float _defaultMoveDistance = 10f;
+  private float defaultMoveDistance = 10f;
 
   public override ActionResult Execute(RAIN.Core.AI ai)
   {
     if (!MoveTargetVariable.IsVariable)
       throw new Exception("The Choose Move Position node requires a valid Move Target Variable");
 
-    float tMoveDistance = 0f;
+    float _moveDistance = 0f;
     if (MoveDistance.IsValid)
-      tMoveDistance = MoveDistance.Evaluate<float>(ai.DeltaTime, ai.WorkingMemory);
+      _moveDistance = MoveDistance.Evaluate<float>(ai.DeltaTime, ai.WorkingMemory);
 
-    if (tMoveDistance <= 0f)
-      tMoveDistance = _defaultMoveDistance;
+    if (_moveDistance <= 0f)
+      _moveDistance = defaultMoveDistance;
 
-    Vector3 tDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
-    tDirection *= tMoveDistance;
+    Vector3 _tempDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
 
-    Vector3 tDestination = ai.Kinematic.Position + tDirection;
-    if (StayOnGraph.IsValid && (StayOnGraph.Evaluate<bool>(ai.DeltaTime, ai.WorkingMemory)))
+    Vector3 tempDestination = ai.Kinematic.Position + _tempDirection.normalized*_moveDistance;
+
+    if (!StayOnGraph.IsValid || !(StayOnGraph.Evaluate<bool> (ai.DeltaTime, ai.WorkingMemory))) 
     {
-      if (NavigationManager.Instance.GraphForPoint(tDestination, ai.Motor.MaxHeightOffset, NavigationManager.GraphType.Navmesh, ((BasicNavigator)ai.Navigator).GraphTags).Count == 0)
-        return ActionResult.FAILURE;
+      ai.WorkingMemory.SetItem<Vector3>(MoveTargetVariable.VariableName, tempDestination);
+      return ActionResult.SUCCESS;
+    }
+    if (NavigationManager.Instance.GraphForPoint(tempDestination, ai.Motor.MaxHeightOffset, NavigationManager.GraphType.Navmesh, null).Count == 0)
+    {
+      return ActionResult.FAILURE;
     }
 
-    ai.WorkingMemory.SetItem<Vector3>(MoveTargetVariable.VariableName, tDestination);
+    ai.WorkingMemory.SetItem<Vector3>(MoveTargetVariable.VariableName, tempDestination);
 
     return ActionResult.SUCCESS;
   }

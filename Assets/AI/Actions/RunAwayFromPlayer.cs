@@ -18,71 +18,70 @@ public class RunAwayFromPlayer : RAINAction
 
   public Expression FleeTargetVariable = new Expression();
 
-  private float _defaultFleeDistance = 10f;
+  private float defaultFleeDistance = 10f;
 
-  private MoveLookTarget _fleeTarget = new MoveLookTarget();
+  private MoveLookTarget fleeTarget = new MoveLookTarget();
 
   public override ActionResult Execute(RAIN.Core.AI ai)
   {
     if (!FleeTargetVariable.IsVariable)
       throw new Exception("The Choose Flee Position node requires a valid Flee Target Variable");
 
-    float tFleeDistance = 0f;
+    float _tFleeDistance = 0f;
     if (FleeDistance.IsValid)
-      tFleeDistance = FleeDistance.Evaluate<float>(ai.DeltaTime, ai.WorkingMemory);
+      _tFleeDistance = FleeDistance.Evaluate<float>(ai.DeltaTime, ai.WorkingMemory);
 
-    if (tFleeDistance <= 0f)
-      tFleeDistance = _defaultFleeDistance;
+    if (_tFleeDistance <= 0f)
+      _tFleeDistance = defaultFleeDistance;
 
     if (FleeFrom.IsVariable)
-      MoveLookTarget.GetTargetFromVariable(ai.WorkingMemory, FleeFrom.VariableName, ai.Motor.DefaultCloseEnoughDistance, _fleeTarget);
+      MoveLookTarget.GetTargetFromVariable(ai.WorkingMemory, FleeFrom.VariableName, ai.Motor.DefaultCloseEnoughDistance, fleeTarget);
     else
-      _fleeTarget.TargetType = MoveLookTarget.MoveLookTargetType.None;
+      fleeTarget.TargetType = MoveLookTarget.MoveLookTargetType.None;
 
-    if (_fleeTarget.IsValid)
+    if (fleeTarget.IsValid)
     {
       
-      Vector3 tAway = ai.Kinematic.Position - _fleeTarget.Position;
-      Vector3 tFleeDirection = tAway.normalized * UnityEngine.Random.Range(1f, tFleeDistance);
+      Vector3 _tAway = ai.Kinematic.Position - fleeTarget.Position;
+      Vector3 _tFleeDirection = _tAway.normalized * UnityEngine.Random.Range(1f, _tFleeDistance);
 
-      Vector3 tFleePosition = ai.Kinematic.Position + tFleeDirection;
-      if (ai.Navigator.OnGraph(tFleePosition, ai.Motor.MaxHeightOffset))
+      Vector3 _tFleePosition = ai.Kinematic.Position + _tFleeDirection;
+      if (ai.Navigator.OnGraph(_tFleePosition, ai.Motor.MaxHeightOffset))
       {
-        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, tFleePosition);
+        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, _tFleePosition);
         return ActionResult.SUCCESS;
       }
 
 
-      Vector3 tFortyFive = Quaternion.Euler(new Vector3(0, 45, 0)) * tFleeDirection;
-      tFleePosition = ai.Kinematic.Position + tFortyFive;
-      if (ai.Navigator.OnGraph(tFleePosition, ai.Motor.MaxHeightOffset))
+      Vector3 tFortyFive = Quaternion.Euler(new Vector3(0, 45, 0)) * _tFleeDirection;
+      _tFleePosition = ai.Kinematic.Position + tFortyFive;
+      if (ai.Navigator.OnGraph(_tFleePosition, ai.Motor.MaxHeightOffset))
       {
-        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, tFleePosition);
+        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, _tFleePosition);
         return ActionResult.SUCCESS;
       }
 
 
-      tFortyFive = Quaternion.Euler(new Vector3(0, -45, 0)) * tFleeDirection;
-      tFleePosition = ai.Kinematic.Position + tFortyFive;
-      if (ai.Navigator.OnGraph(tFleePosition, ai.Motor.MaxHeightOffset))
+      tFortyFive = Quaternion.Euler(new Vector3(0, -45, 0)) * _tFleeDirection;
+      _tFleePosition = ai.Kinematic.Position + tFortyFive;
+      if (ai.Navigator.OnGraph(_tFleePosition, ai.Motor.MaxHeightOffset))
       {
-        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, tFleePosition);
+        ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, _tFleePosition);
         return ActionResult.SUCCESS;
       }
     }
 
 
-    Vector3 tDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
-    tDirection *= tFleeDistance;
+    Vector3 _tDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0f, UnityEngine.Random.Range(-1f, 1f));
 
-    Vector3 tDestination = ai.Kinematic.Position + tDirection;
+    Vector3 _tDestination = ai.Kinematic.Position + _tDirection.normalized*_tFleeDistance;
     if (StayOnGraph.IsValid && (StayOnGraph.Evaluate<bool>(ai.DeltaTime, ai.WorkingMemory)))
     {
-      if (!ai.Navigator.OnGraph(tDestination, ai.Motor.MaxHeightOffset))
+      if (!ai.Navigator.OnGraph(_tDestination, ai.Motor.MaxHeightOffset))
         return ActionResult.FAILURE;
     }
 
-    ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, tDestination);
+    ai.WorkingMemory.SetItem<Vector3>(FleeTargetVariable.VariableName, _tDestination);
 
     return ActionResult.SUCCESS;
   }

@@ -16,6 +16,14 @@ public class CameraController : MonoBehaviour {
 
   void LateUpdate () 
   {
-    transform.position = Player.transform.position + offset;
+    try
+    {
+      transform.position = Player.transform.position + offset;  
+    }
+    catch(MissingReferenceException exception)
+    {
+      Debug.Log ("Can not find GameObject 'Player'");
+    }
+
   }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class GameController : MonoBehaviour {
@@ -24,7 +25,7 @@ public class GameController : MonoBehaviour {
     {
       if (Input.GetKeyDown (KeyCode.R)) 
       {
-        Application.LoadLevel (Application.loadedLevel);
+        SceneManager.LoadScene ("MainScene");
       }
     }
     if (gameOver) 
